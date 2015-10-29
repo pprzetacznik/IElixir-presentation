@@ -24,8 +24,256 @@
 	<body>
 		<div class="reveal">
 			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
+				<section>
+					<h1>IElixir</h1>
+					<h3>Jupyter integration with Elixir programming language</h3>
+					<p>
+            <small>
+              Created by <a href="http://twitter.com/pprzetacznik">Piotr Przetacznik</a> / <a href="http://twitter.com/pprzetacznik">@pprzetacznik</a>
+            </small>
+					</p>
+				</section>
+
+        <section>
+          <h2>Agenda</h2>
+          <ul>
+            <li>What is Jupyter?</li>
+            <li>Doctests</li>
+            <li>Configuration</li>
+            <li>Documentation</li>
+            <li>Hex</li>
+            <li>Inch CI</li>
+            <li>Coveralls</li>
+          </ul>
+        </section>
+
+				<section>
+					<h2>IElixir</h2>
+          <ul>
+            <li><a href="https://github.com/pprzetacznik/IElixir">https://github.com/pprzetacznik/IElixir</a></li>
+            <li><a href="https://coveralls.io/github/pprzetacznik/IElixir">https://coveralls.io/github/pprzetacznik/IElixir</a></li>
+            <li><a href="http://inch-ci.org/github/pprzetacznik/IElixir">http://inch-ci.org/github/pprzetacznik/IElixir</a></li>
+            <li><a href="http://hexdocs.pm/ielixir/">http://hexdocs.pm/ielixir/</a></li>
+					</p>
+				</section>
+
+				<section>
+					<section>
+						<h2>Jupyter</h2>
+
+            <p>
+            <small><a href="https://ipython.org/ipython-doc/3/development/messaging.html">https://ipython.org/ipython-doc/3/development/messaging.html</a></small>
+            </p>
+
+<ul>
+  <li>Shell</li>
+  <li>IOPub</li>
+  <li>Stdin</li>
+  <li>Control</li>
+  <li>Heartbeat</li>
+</ul>
+
+            <section data-markdown>
+              ```Bash
+              $ ipython kernelspec list
+              $ ipython console --kernel bash
+              $ ipython console --kernel bash
+              $ jupyter notebook
+              $ jupyter console
+              ```
+						</section>
+					</section>
+
+          <section>
+            <h2>Debugging</h2>
+
+            <section data-markdown>
+              ```Python
+              In [1] from jupyter_client import KernelManager
+              In [2] km  = KernelManager(kernel_name='ielixir')
+              In [3] km.start_kernel()
+              In [4] kc = km.client()
+              In [5] kc.history(hist_access_type='tail', n=10)
+              In [6] kc.get_shell_msg()
+
+Out[6]:
+{'buffers': [],
+ 'content': {u'history': [[102, 18, u'kc.get_shell_msg()'],
+   [104, 1, u"km  = KernelManager(kernel_name='python2')"],
+   [104, 2, u'from jupyter_client import KernelManager'],
+   [104, 3, u"km  = KernelManager(kernel_name='python2')"],
+   [104, 4, u'km.start_kernel()'],
+   [104, 5, u'kc2 = km2.client()'],
+   [104, 6, u'kc2 = km.client()'],
+   [104, 7, u'kc = km.client()'],
+   [104, 8, u'kc.history()'],
+   [104, 9, u"kc.history(hist_access_type='tail', n=10)"]]},
+ 'header': {u'date': datetime.datetime(2015, 8, 24, 23, 40, 9, 995329),
+  u'msg_id': u'70c66eb7-5dc8-42bd-8bce-586a4dd1021f',
+  u'msg_type': u'history_reply',
+  u'session': u'aca3963f-2965-466b-9f46-03d62db715cc',
+  u'username': u'pankracy',
+  u'version': u'5.0'},
+ 'metadata': {},
+ 'msg_id': u'70c66eb7-5dc8-42bd-8bce-586a4dd1021f',
+ 'msg_type': u'history_reply',
+ 'parent_header': {u'date': datetime.datetime(2015, 8, 24, 23, 40, 9, 993288),
+  u'msg_id': u'80c3e6be-de9d-4a91-92d3-54a21f5fe7a2',
+  u'msg_type': u'history_request',
+  u'session': u'0c7cc781-00a4-4846-aa84-e1982b6d499c',
+  u'username': u'pankracy',
+  u'version': u'5.0'}}
+              ```
+            </section>
+
+            <section>
+              <h2>Other Jupyter stuff</h2>
+
+              <ul>
+                <li>
+                  <a href="https://github.com/dsblank/simple_kernel">https://github.com/dsblank/simple_kernel</a>
+                  <a href="https://github.com/pprzetacznik/jupyter_kernel_test/tree/ielixir">https://github.com/pprzetacznik/jupyter_kernel_test/tree/ielixir</a>
+                </li>
+              </ul>
+            </section>
+
+          </section>
+				</section>
+
+        <section>
+          <section>
+					<h2>Doctests in Python part 1</h2>
+
+<pre><code class="hljs" data-trim contenteditable>
+import unittest
+import doctest
+import patent_parsing_tools.bow.wordcount as wordcount
+
+def setUp(_arg):
+    pass
+
+def tearDown(_arg):
+    pass
+
+def load_tests(loader, tests, ignore):
+    tests.addTests(doctest.DocTestSuite(wordcount, setUp=setUp, tearDown=tearDown))
+    return tests
+</code></pre>
+          </section>
+
+          <section>
+					<h2>Doctests in Python part 2</h2>
+
+<pre><code class="hljs" data-trim contenteditable>
+# ...
+
+class WordCount:
+    def __init__(self):
+        nltk.download('stopwords')
+        self.stopwords = stopwords.words('english')
+        self.wordcount_dictionary = {}
+        self.parse_regexp = re.compile(r"([0-9]*[a-zA-Z][a-zA-Z0-9]+)", re.DOTALL)
+
+    def parse_text(self, text, wordcount_dictionary=None):
+        """
+        >>> wordcount = WordCount() #doctest: +ELLIPSIS
+        [nltk_data] ...
+        >>> wordcount.parse_text("a1a ma kota")
+        {'ma': 1, 'a1a': 1, 'kota': 1}
+        >>> wordcount.parse_text("a1a ma kota", {'a1a': 2, 'kota': 1})
+        {'ma': 1, 'a1a': 3, 'kota': 2}
+        """
+
+        # Implementation
+</code></pre>
+
+<section data-markdown>
+```Bash
+python -m unittest discover .
+```
+</section>
+
+          </section>
+
+          <section>
+					  <h2>Doctests in Elixir</h2>
+
+            <a href="http://elixir-lang.org/getting-started/mix-otp/docs-tests-and-pipelines.html">http://elixir-lang.org/getting-started/mix-otp/docs-tests-and-pipelines.html</a>
+          </section>
+
+				</section>
+
+
+				<section>
+					<h2>Configurations</h2>
+<p>In dev.exs</p>
+<pre><code class="hljs" data-trim contenteditable>
+config :ielixir, connection_file: System.get_env("CONNECTION_FILE")
+</code></pre>
+
+<p>In application</p>
+<pre><code class="hljs" data-trim contenteditable>
+conn_info = Application.get_env(:ielixir, :connection_file)
+</code></pre>
+				</section>
+
+				<section>
+					<h2>Documentation</h2>
+
+<section data-markdown>
+```Bash
+$ MIX_ENV=docs mix docs
+$ MIX_ENV=docs mix hex.docs
+```
+</section>
+
+<pre><code class="hljs" data-trim contenteditable>
+# Docs dependencies
+{:earmark, "~> 0.1", only: :docs},
+{:ex_doc, "~> 0.7", only: :docs},
+{:inch_ex, "0.4.0", only: :docs},
+</code></pre>
+
+				</section>
+
+        <section>
+          <h2>Hex</h2>
+          <ul>
+            <li><a href="https://hex.pm/docs/tasks">https://hex.pm/docs/tasks</a></li>
+            <li><a href="https://hex.pm/packages/ielixir">https://hex.pm/packages/ielixir</a></li>
+            <li><a href="http://hexdocs.pm/ielixir/0.9.0/">http://hexdocs.pm/ielixir/0.9.0/</a></li>
+          </ul>
+
+        </section>
+
+        <section>
+          <h2>Inch CI and Coveralls</h2>
+
+<pre><code class="hljs" data-trim contenteditable>
+{:inch_ex, "0.4.0", only: :docs},
+{:excoveralls, "~> 0.3.11", only: :test}
+</code></pre>
+
+<section data-markdown>
+```Bash
+$ MIX_ENV=docs mix inch.report
+$ MIX_ENV=test mix coveralls.travis
+$ MIX_ENV=dev mix coveralls.travis
+```
+
+* https://coveralls.io/github/pprzetacznik/IElixir
+* http://inch-ci.org/github/pprzetacznik/IElixir
+
+</section>
+
+        </section>
+
+        <section>
+          <h2>Link to the presentation</h2>
+
+          <p><small><a href="https://github.com/pprzetacznik/IElixir-presentation">https://github.com/pprzetacznik/IElixir-presentation</a></small></p>
+        </section>
+
 			</div>
 		</div>
 
